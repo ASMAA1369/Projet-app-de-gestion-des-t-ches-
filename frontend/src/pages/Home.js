@@ -1,23 +1,35 @@
-import { useEffect, useState } from 'react';
-import { getTasks } from '../services/api';
-import TaskForm from '../components/TaskForm';
-import TaskItem from '../components/TaskItem';
+import React, { useEffect, useState } from "react";
+import api from "../services/api";
+import TaskForm from "../components/TaskForm";
+import TaskItem from "../components/TaskItem";
 
-export default function Home({ token }) {
+const Home = () => {
   const [tasks, setTasks] = useState([]);
 
   const fetchTasks = async () => {
-    const res = await getTasks(token);
-    setTasks(res.data);
+    try {
+      const res = await api.get("/tasks");
+      setTasks(res.data);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  useEffect(() => { fetchTasks(); }, []);
+  useEffect(() => {
+    fetchTasks();
+  }, []);
 
   return (
-    <div>
-      <h2>Mes tâches</h2>
-      <TaskForm token={token} refreshTasks={fetchTasks} />
-      {tasks.map(task => <TaskItem key={task._id} task={task} />)}
+    <div style={{ padding: "20px" }}>
+      <h2>Tasks</h2>
+      <TaskForm onTaskAdded={fetchTasks} />
+      <ul>
+        {tasks.map(task => (
+          <TaskItem key={task._id} task={task} refreshTasks={fetchTasks} />
+        ))}
+      </ul>
     </div>
   );
-}
+};
+
+export default Home;
